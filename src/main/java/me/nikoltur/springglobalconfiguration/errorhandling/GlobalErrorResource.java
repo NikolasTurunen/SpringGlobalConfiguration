@@ -3,7 +3,7 @@ package me.nikoltur.springglobalconfiguration.errorhandling;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +20,16 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class GlobalErrorResource implements ErrorController {
 
     private static final String PATH = "/error";
-    @Autowired
-    private ErrorAttributes errorAttributes;
+    private final ErrorAttributes errorAttributes;
+
+    public GlobalErrorResource() {
+        errorAttributes = getErrorAttributes();
+    }
 
     @RequestMapping(PATH)
     public ErrorResponse error(HttpServletRequest request, HttpServletResponse response) {
 
-        return new ErrorResponse(getErrorAttributes(request));
+        return new ErrorResponse(GlobalErrorResource.this.getErrorAttributes(request));
     }
 
     private Map<String, Object> getErrorAttributes(HttpServletRequest request) {
@@ -37,5 +40,15 @@ public class GlobalErrorResource implements ErrorController {
     @Override
     public String getErrorPath() {
         return PATH;
+    }
+
+    private ErrorAttributes getErrorAttributes() {
+        return new DefaultErrorAttributes() {
+            @Override
+            public Map<String, Object> getErrorAttributes(RequestAttributes requestAttributes, boolean includeStackTrace) {
+                Map<String, Object> errorAttributes = super.getErrorAttributes(requestAttributes, includeStackTrace);
+                return errorAttributes;
+            }
+        };
     }
 }
