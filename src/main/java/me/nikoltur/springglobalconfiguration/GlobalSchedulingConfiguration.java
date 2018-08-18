@@ -31,6 +31,8 @@ public class GlobalSchedulingConfiguration implements SchedulingConfigurer {
         });
         taskScheduler.setThreadNamePrefix("scheduled-");
 
+        taskScheduler.setPoolSize(Runtime.getRuntime().availableProcessors() + 1);
+
         taskScheduler.initialize();
     }
 
